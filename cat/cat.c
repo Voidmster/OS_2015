@@ -64,14 +64,14 @@ int main(int argc, char *argv[]) {
     if (argc >= 2) {
         int i;
         for (i = 1; i < argc; i++) {
-            if (cat(open(argv[i], O_RDONLY)) == -1) {
+            if (cat(open(argv[1], O_RDONLY)) == -1) {
                 return -1;
             }
         }
     } else {
         return cat(STDIN_FILENO);
     }
-    
+
     return 0;
 }
 
