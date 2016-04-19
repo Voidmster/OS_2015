@@ -33,7 +33,6 @@ int main()
       i = i + 1;
     }
     sleep(10);
-
     flag = 1;
     raise(SIGUSR1);
 
