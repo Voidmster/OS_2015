@@ -3,33 +3,39 @@
 #include <unistd.h>
 #include <stdlib.h>
 
-void custom_handler(int sign, siginfo_t* siginfo, void* context){
-    if (sign == SIGUSR1) {
-        printf("SIGUSR1 from %i\n", siginfo->si_pid);
-    } else if (sign == SIGUSR2) {
-        printf("SIGUSR2 from %i\n", siginfo->si_pid);
+volatile int flag = 0;
+
+void custom_handler(int sign, siginfo_t* siginfo, void* context) {
+    if (flag == 0) {
+      printf("Signal #%d from %d\n", sign, siginfo->si_pid);
+    } else {
+      printf("No signals were caught\n");
     }
+
     exit(0);
 }
 
 int main()
 {
-    struct sigaction act1;
-    act1.sa_handler = (__sighandler_t) custom_handler;
-    act1.sa_flags = SA_SIGINFO;
-    sigaddset(&act1.sa_mask, SIGUSR2);
+    struct sigaction act;
+    act.sa_handler = (__sighandler_t) custom_handler;
+    act.sa_flags = SA_SIGINFO;
+    sigfillset(&act.sa_mask);
 
-    struct sigaction act2;
-    act2.sa_handler = (__sighandler_t) custom_handler;
-    act2.sa_flags = SA_SIGINFO;
-    sigaddset(&act2.sa_mask, SIGUSR1);
-
-    sigaction(SIGUSR1, &act1, NULL);
-    sigaction(SIGUSR2, &act2, NULL);
-
+    int i = 1;
+    while (i != 32) {
+      if (i != SIGSTOP && i != SIGKILL) {
+        if (sigaction(i, &act, NULL) == -1) {
+          printf("Can't set sig_handler for #%d\n", i);
+          exit(0);
+        }
+      }
+      i = i + 1;
+    }
     sleep(10);
 
-    printf("No signals were caught\n");
+    flag = 1;
+    raise(SIGUSR1);
 
     return 0;
 }
