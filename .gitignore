@@ -31,5 +31,7 @@
 # Debug files
 *.dSYM/
 
-#Dir
+# Dir
 skretch
+
+rshd/CMakeLists.txt

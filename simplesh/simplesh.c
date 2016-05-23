@@ -23,13 +23,18 @@ void custom_handler(int sign, siginfo_t* siginfo, void* context) {
 std::string read_line(int fd) {
   std::vector<char> buffer(BUFFER_SIZE, 0);
   std::string result(rest);
-  int _size;
+  int _size, total = 0;
   rest = "";
+  bool flag = false;
 
   while(true) {
     _size = read(fd, buffer.data(), buffer.size());
 
-    if (_size == -1) {
+    if (_size < 0) {
+      if (errno == EINTR) {
+        flag = true;
+        break;
+      }
       exit(1);
     }
 
@@ -37,6 +42,7 @@ std::string read_line(int fd) {
       break;
     }
 
+    total += _size;
     std::vector<char>::iterator index = std::find(buffer.begin(), buffer.begin() + _size, '\n');
 
     if (index == buffer.begin() + _size) {
@@ -52,6 +58,9 @@ std::string read_line(int fd) {
     }
   }
 
+  if (total == 0 && !flag) {
+    exit(0);
+  }
   return result;
 }
 
