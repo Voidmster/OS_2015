@@ -50,6 +50,7 @@ left_side::left_side(rsh_daemon *parent, std::function<void(left_side*)> on_disc
           ioEvent(parent->get_service(), socket.get_fd(), EPOLLRDHUP, [this] (uint32_t events) mutable throw(std::runtime_error)
           {
               try {
+                  std::cerr << "In right_side " << epoll_event_to_str(events) << "\n";
                   if (events & EPOLLIN) {
                       read_request();
                   }
@@ -67,7 +68,7 @@ left_side::left_side(rsh_daemon *parent, std::function<void(left_side*)> on_disc
           on_disconnect(on_disconnect)
 {
     partner = parent->create_new_right_side(this);
-    std::cerr << "Left_side created" << "\n";
+    std::cerr << "Left_side created " << this <<" \n";
 }
 
 left_side::~left_side() {
@@ -75,7 +76,7 @@ left_side::~left_side() {
         partner->partner = nullptr;
         partner->on_disconnect(partner);
     }
-    std::cerr << "Left_side destroyed" << "\n";
+    std::cerr << "Left_side destroyed " << this << " \n";
 }
 
 void left_side::read_request() {
@@ -123,6 +124,7 @@ right_side::right_side(rsh_daemon *parent, left_side *partner, std::function<voi
           ioEvent(parent->get_service(), ps_term, EPOLLIN, [this] (uint32_t events) mutable throw(std::runtime_error)
           {
               try {
+                  std::cerr << "In right_side " << epoll_event_to_str(events) << "\n";
                   if (events & EPOLLIN) {
                       read_response();
                   }
@@ -140,7 +142,7 @@ right_side::right_side(rsh_daemon *parent, left_side *partner, std::function<voi
           on_disconnect(on_disconnect),
           parent(parent)
 {
-    std::cerr << "Right_side created" << "\n";
+    std::cerr << "Right_side created " << this << " \n";
 }
 
 right_side::~right_side() {
@@ -152,7 +154,7 @@ right_side::~right_side() {
     kill(child, SIGKILL);
     int status;
     waitpid(child, &status, 0);
-    std::cerr << "Right_side destroyed" << "\n";
+    std::cerr << "Right_side destroyed " << this << " \n";
 }
 
 

@@ -11,7 +11,7 @@ bool data_buffer::can_read_into() {
 }
 
 bool data_buffer::can_write_from() {
-    return write_ind < MAX_SIZE;
+    return write_ind < read_ind;
 }
 
 void data_buffer::read_from(file_descriptor &fd) {

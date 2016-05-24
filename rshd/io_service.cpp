@@ -36,7 +36,7 @@ void io_service::remove(file_descriptor & fd, io_event *event, uint32_t flags) {
 }
 
 void io_service::modify(file_descriptor & fd, io_event *event, uint32_t flags) {
-    control(EPOLL_CTL_MOD, fd.get_fd(), event, flags | EPOLLERR | EPOLLRDHUP | EPOLLHUP);
+    control(EPOLL_CTL_MOD, fd.get_fd(), event, flags);
 }
 
 file_descriptor io_service::create_signal_fd(std::vector<uint8_t> signals) {
@@ -97,7 +97,7 @@ io_event::io_event(io_service &service, file_descriptor &fd, uint32_t flags, std
         : service(service),
           fd(fd),
           callback(callback),
-          flags(flags)
+          flags(flags | EPOLLERR | EPOLLRDHUP | EPOLLHUP)
 {
     service.add(fd, this, flags);
 }
